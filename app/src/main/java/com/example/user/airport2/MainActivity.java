@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Absen masuk = new Absen();
                 waktu = Calendar.getInstance();
+
                 masuk.setWaktu(formatCalendar(waktu));
                 masuk.setTag("masuk");
                 logAbsent.add(masuk);
