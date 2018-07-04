@@ -18,6 +18,7 @@ import com.estimote.coresdk.common.requirements.SystemRequirementsChecker;
 import com.estimote.coresdk.observation.region.beacon.BeaconRegion;
 import com.estimote.coresdk.recognition.packets.Beacon;
 import com.estimote.coresdk.service.BeaconManager;
+import com.estimote.coresdk.service.BeaconService;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,13 +28,14 @@ import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
     private BeaconManager beaconManager;
-    Switch sw1;
+    Switch sw1,sw2;
     TextView txtWaktu;
     Calendar waktu;
     ArrayList<Absen> logAbsent = new ArrayList<>();
     String abc = "";
 
     static BeaconRegion region1 = new BeaconRegion("region1", UUID.fromString("b9407f30-f5f8-466e-aff9-25556b57fe6d"), 39255, 27376);
+    static BeaconRegion region2 = new BeaconRegion("region2", UUID.fromString("8492E75F-4FD6-469D-B132-043FE94921D8"), 39266, 27377);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,10 +50,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    startMonitoring();
+                    startMonitoring(region2);
 
                 } else {
-//                    beaconManager.stopMonitoring();
                     beaconManager.disconnect();
                     Toast.makeText(MainActivity.this, "off service", Toast.LENGTH_SHORT).show();
                 }
@@ -66,6 +67,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         SystemRequirementsChecker.checkWithDefaultDialogs(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopMonitoring(region2);
     }
 
     public void notificationManager() {
@@ -95,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                         "you exit airport");
                 Absen keluar = new Absen();
                 waktu = Calendar.getInstance();
-                waktu.add(Calendar.HOUR, +1);
+//                waktu.add(Calendar.HOUR, +1);
                 keluar.setWaktu(formatCalendar(waktu));
                 keluar.setTag("keluar");
                 logAbsent.add(keluar);
@@ -104,24 +111,25 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void startMonitoring() {
+    public void startMonitoring(final BeaconRegion region) {
         beaconManager.connect(new BeaconManager.ServiceReadyCallback() {
             @Override
             public void onServiceReady() {
-                long scanPeriod = 5*1000;
-                long waitTime = 10*1000;
-                beaconManager.setBackgroundScanPeriod(scanPeriod,waitTime);
-                beaconManager.startMonitoring(region1);
+//                long scanPeriod = 6*1000;
+//                long waitTime = 10*1000;
+//                beaconManager.setBackgroundScanPeriod(scanPeriod,waitTime);
+//                beaconManager.setForegroundScanPeriod(scanPeriod,waitTime);
+                beaconManager.startMonitoring(region);
             }
         });
 
     }
 
-    public void stopMonitoring() {
+    public void stopMonitoring(final BeaconRegion region) {
             beaconManager.connect(new BeaconManager.ServiceReadyCallback(){
                 @Override
                 public void onServiceReady() {
-                    beaconManager.stopMonitoring(region1.getIdentifier());
+                    beaconManager.stopMonitoring(region.getIdentifier());
                 }
 
             });
